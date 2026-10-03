@@ -39,7 +39,6 @@ button { font: inherit; cursor: pointer; }
   background: #bde4a3 url("assets/background.png") center / 100% 100% no-repeat;
 }
 
-/* Верхняя панель */
 .top {
   position: absolute;
   top: 18px;
@@ -85,79 +84,69 @@ button { font: inherit; cursor: pointer; }
   background: #ffffffdf;
 }
 
-/* Четыре домика */
+/* Размер и положение всех домиков */
 #houses {
   position: absolute;
-  top: 205px;
+  top: 178px;
   left: 65px;
   right: 65px;
-  height: 385px;
+  height: 440px;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 35px;
+  gap: 25px;
 }
 
 .house {
   position: relative;
-  margin-top: 55px;
-  height: 330px;
-  padding: 52px 18px 18px;
-  border: 6px solid #fff6;
-  border-radius: 13px 13px 20px 20px;
-  background: var(--wall);
-  box-shadow: 0 8px 0 #47673933;
+  width: 100%;
+  height: 100%;
 }
 
-.roof {
+.house-image {
   position: absolute;
-  top: -65px;
-  left: -20px;
-  right: -20px;
-  height: 80px;
-  background: var(--roof);
-  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  pointer-events: none;
+  user-select: none;
 }
 
+/* Точки на крыше */
 .dots {
   position: absolute;
-  top: 18px;
+  top: 18%;
   left: 0;
   right: 0;
   display: flex;
   justify-content: center;
-  gap: 10px;
+  gap: 9px;
+  pointer-events: none;
 }
 
 .dot {
-  width: 19px;
-  height: 19px;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
-  background: #354853;
+  background: #3f4b61;
+  border: 2px solid #ffffffcf;
+  box-shadow: 0 2px 3px #0002;
 }
 
-.windows {
-  display: grid;
-  height: 100%;
-  grid-template-columns: repeat(2, 1fr);
-  grid-template-rows: repeat(2, 1fr);
-  gap: 15px;
-}
-
+/* Прозрачные области внутри нарисованных окон */
 .slot {
+  position: absolute;
   display: flex;
   align-items: center;
   justify-content: center;
   min-width: 0;
   min-height: 0;
-  border: 5px solid white;
-  border-radius: 17px;
-  background: #fffdf0;
-  box-shadow: inset 0 2px 8px #0000000c;
 }
 
 .card {
   width: 100%;
   height: 100%;
+  padding: 3px;
   border: 3px solid transparent;
   border-radius: 12px;
   background: transparent;
@@ -171,38 +160,46 @@ button { font: inherit; cursor: pointer; }
 }
 
 .picture {
-  font-size: 75px;
+  font-size: 67px;
   line-height: 1.1;
   pointer-events: none;
 }
 
 .card img {
-  width: 95%;
-  height: 90%;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
   object-fit: contain;
   pointer-events: none;
 }
 
 .name {
   display: none;
-  font-size: 18px;
+  font-size: 16px;
+  line-height: 1.1;
+  padding-top: 2px;
   pointer-events: none;
 }
 
 .show-names .name { display: block; }
-.show-names .picture { font-size: 65px; }
+.show-names .picture { font-size: 54px; }
+.show-names .card img { height: calc(100% - 22px); }
 
 .selected {
   border-color: #ed9b19;
-  background: #fff3bd;
+  background: #fff3bd88;
 }
 
-.over {
-  outline: 6px solid #ffce54;
-  outline-offset: 4px;
+.house.over::after {
+  content: "";
+  position: absolute;
+  inset: 27% 8% 2%;
+  border: 5px solid #ffce54;
+  border-radius: 18px;
+  pointer-events: none;
 }
 
-/* Зона жителей на дорожке */
+/* Жители на дорожке */
 #meadow {
   position: absolute;
   top: 645px;
@@ -218,16 +215,22 @@ button { font: inherit; cursor: pointer; }
   gap: 35px;
 }
 
+#meadow.over {
+  outline: 5px solid #ffce54;
+  outline-offset: 3px;
+}
+
 .meadow-slot {
   width: 155px;
   height: 132px;
-  border-radius: 22px;
 }
 
 .meadow-slot .card {
-  background: #ffffffb5;
+  background: #ffffff80;
   border-radius: 22px;
 }
+
+.meadow-slot .picture { font-size: 80px; }
 
 #feedback {
   position: absolute;
@@ -257,8 +260,8 @@ button { font: inherit; cursor: pointer; }
 
 .ghost .picture { font-size: 65px; }
 .ghost .name { display: none; }
+.ghost img { height: 100%; }
 
-/* Победа */
 #win {
   border: 0;
   border-radius: 28px;
@@ -269,7 +272,6 @@ button { font: inherit; cursor: pointer; }
 }
 
 #win::backdrop { background: #21434e66; }
-
 #win h2 { font-size: 30px; }
 
 #next {
@@ -317,9 +319,13 @@ button { font: inherit; cursor: pointer; }
       </div>
 
       <div id="instruction" aria-live="polite"></div>
-      <section id="houses"></section>
-      <section id="meadow" data-target="meadow"
+
+      <section id="houses" aria-label="Четыре домика"></section>
+
+      <section id="meadow"
+               data-target="meadow"
                aria-label="Дорожка для лишних жителей"></section>
+
       <p id="feedback" aria-live="polite"></p>
     </main>
   </div>
@@ -337,8 +343,9 @@ button { font: inherit; cursor: pointer; }
 <script>
 const $ = selector => document.querySelector(selector);
 
-// Картинки позже загрузим в assets/pictures.
-// Чтобы подключить их, измените USE_IMAGES на true.
+// Пока жители отображаются временными значками.
+// Когда загрузите pik-01.png ... pik-24.png
+// в assets/pictures, поменяем false на true.
 const USE_IMAGES = false;
 
 const groups = [
@@ -379,27 +386,59 @@ const groups = [
 const words = groups.map((group, g) =>
   group.map((item, i) => {
     const number = g * 6 + i + 1;
+    const id = "pik-" + String(number).padStart(2, "0");
 
     return {
-      id: "pik-" + String(number).padStart(2, "0"),
+      id,
       name: item[0],
       emoji: item[1],
       syllables: g + 1,
-      img: "assets/pictures/pik-" +
-           String(number).padStart(2, "0") + ".png"
+      img: `assets/pictures/${id}.png`
     };
   })
 );
 
-const colors = [
-  ["#ffddb7", "#dd8c4e"],
-  ["#c8e9ff", "#679cd4"],
-  ["#ebd6ff", "#a27ac8"],
-  ["#ffecb6", "#d5a643"]
+// Положение картинок внутри окон каждого домика.
+// Параметры: left, top, width, height — в процентах.
+const houseSettings = [
+  {
+    image: "assets/houses/house-01.png",
+    windows: [
+      [16.5, 31.5, 29, 21],
+      [54.5, 31.5, 29, 21],
+      [16.5, 59.5, 29, 21],
+      [54.5, 59.5, 29, 21]
+    ]
+  },
+  {
+    image: "assets/houses/house-02.png",
+    windows: [
+      [18.5, 30.5, 27, 21.5],
+      [54, 30.5, 27, 21.5],
+      [18.5, 58.5, 27, 21.5],
+      [54, 58.5, 27, 21.5]
+    ]
+  },
+  {
+    image: "assets/houses/house-03.png",
+    windows: [
+      [19, 30, 26.5, 19.5],
+      [54, 30, 26.5, 19.5],
+      [19, 56.5, 26.5, 19.5],
+      [54, 56.5, 26.5, 19.5]
+    ]
+  },
+  {
+    image: "assets/houses/house-04.png",
+    windows: [
+      [19, 31.5, 26.5, 21],
+      [54, 31.5, 26.5, 21],
+      [19, 60, 26.5, 21],
+      [54, 60, 26.5, 21]
+    ]
+  }
 ];
 
-// В каждом уровне — новые сочетания.
-// Сдвиг определяет, из какого домика приходит лишний житель.
 const shifts = [1, 2, 3, 1, 3];
 
 let level = 0;
@@ -409,6 +448,7 @@ let selected = null;
 let drag = null;
 let suppressClick = false;
 let audioContext = null;
+let confettiTimer = null;
 
 function fitGame() {
   const scale = Math.min(
@@ -475,9 +515,7 @@ function createCard(resident) {
     image.alt = "";
     image.draggable = false;
 
-    image.onerror = () => {
-      image.replaceWith(picture);
-    };
+    image.onerror = () => image.replaceWith(picture);
 
     button.append(image);
   } else {
@@ -496,26 +534,42 @@ function render() {
   $("#houses").replaceChildren();
 
   for (let houseNumber = 1; houseNumber <= 4; houseNumber++) {
+    const settings = houseSettings[houseNumber - 1];
     const house = document.createElement("section");
 
     house.className = "house";
     house.dataset.target = houseNumber;
-    house.style.setProperty("--wall", colors[houseNumber - 1][0]);
-    house.style.setProperty("--roof", colors[houseNumber - 1][1]);
+    house.setAttribute(
+      "aria-label",
+      `Домик с количеством слогов: ${houseNumber}`
+    );
 
-    house.innerHTML = `
-      <div class="roof"></div>
-      <div class="dots">
-        ${'<span class="dot"></span>'.repeat(houseNumber)}
-      </div>
-      <div class="windows"></div>
-    `;
+    const image = document.createElement("img");
+    image.className = "house-image";
+    image.src = settings.image;
+    image.alt = "";
+    image.draggable = false;
+    house.append(image);
 
-    const windows = house.querySelector(".windows");
+    const dots = document.createElement("div");
+    dots.className = "dots";
 
-    for (let slotNumber = 0; slotNumber < 4; slotNumber++) {
+    for (let i = 0; i < houseNumber; i++) {
+      const dot = document.createElement("span");
+      dot.className = "dot";
+      dots.append(dot);
+    }
+
+    house.append(dots);
+
+    settings.windows.forEach((position, slotNumber) => {
       const slot = document.createElement("div");
       slot.className = "slot";
+
+      slot.style.left = position[0] + "%";
+      slot.style.top = position[1] + "%";
+      slot.style.width = position[2] + "%";
+      slot.style.height = position[3] + "%";
 
       const resident = residents.find(item =>
         item.location === houseNumber &&
@@ -523,8 +577,8 @@ function render() {
       );
 
       if (resident) slot.append(createCard(resident));
-      windows.append(slot);
-    }
+      house.append(slot);
+    });
 
     $("#houses").append(house);
   }
@@ -570,8 +624,8 @@ function loadLevel() {
     }
   }
 
-  // По одному лишнему жителю в каждом доме.
-  // Каждый из четырёх домов получит одного нового жителя.
+  // Один лишний житель в каждом доме.
+  // После расселения каждый дом получит одного жителя.
   for (let destination = 0; destination < 4; destination++) {
     const sourceGroup = (destination + shifts[level]) % 4;
     const word = words[sourceGroup][(level + 3) % 6];
@@ -584,8 +638,7 @@ function loadLevel() {
     });
   }
 
-  // Меняем расположение жителей в окошках,
-  // чтобы лишний не стоял постоянно в одном месте.
+  // Перемешиваем расположение жителей в окошках.
   for (let number = 1; number <= 4; number++) {
     const houseResidents = residents.filter(
       item => item.location === number
@@ -624,7 +677,6 @@ function move(id, target) {
 
     resident.location = "meadow";
     selected = null;
-
     sound(true);
 
     const found = residents.filter(
@@ -676,6 +728,11 @@ function move(id, target) {
   }
 }
 
+function clearConfetti() {
+  clearTimeout(confettiTimer);
+  $("#confetti").replaceChildren();
+}
+
 function celebrate() {
   const finalLevel = level === 4;
 
@@ -692,22 +749,23 @@ function celebrate() {
     : "Следующий уровень";
 
   $("#win").showModal();
+  clearConfetti();
 
   const host = $("#confetti");
-  host.replaceChildren();
-
   const palette = ["#ffad50", "#7bc8ed", "#c596ed", "#ffdb55"];
 
   for (let i = 0; i < 75; i++) {
     const piece = document.createElement("i");
+
     piece.className = "confetti";
     piece.style.left = Math.random() * 100 + "%";
     piece.style.background = palette[i % palette.length];
     piece.style.animationDelay = Math.random() * .5 + "s";
+
     host.append(piece);
   }
 
-  setTimeout(() => host.replaceChildren(), 3200);
+  confettiTimer = setTimeout(clearConfetti, 3200);
 }
 
 function clearHover() {
@@ -719,6 +777,12 @@ function clearHover() {
 function targetAt(x, y) {
   return document.elementFromPoint(x, y)
     ?.closest("[data-target]");
+}
+
+function cancelDrag() {
+  drag?.ghost?.remove();
+  drag = null;
+  clearHover();
 }
 
 document.addEventListener("pointerdown", event => {
@@ -753,6 +817,7 @@ document.addEventListener("pointermove", event => {
     ).cloneNode(true);
 
     drag.ghost.classList.add("ghost");
+    drag.ghost.removeAttribute("data-id");
     document.body.append(drag.ghost);
   }
 
@@ -761,6 +826,7 @@ document.addEventListener("pointermove", event => {
     drag.ghost.style.top = event.clientY + "px";
 
     clearHover();
+
     targetAt(event.clientX, event.clientY)
       ?.classList.add("over");
   }
@@ -788,18 +854,15 @@ document.addEventListener("pointerup", event => {
 
     event.preventDefault();
     suppressClick = true;
-
     setTimeout(() => suppressClick = false, 0);
   }
 });
 
-document.addEventListener("pointercancel", () => {
-  drag?.ghost?.remove();
-  drag = null;
-  clearHover();
-});
+document.addEventListener("pointercancel", cancelDrag);
+window.addEventListener("blur", cancelDrag);
 
-// Можно также нажать на жителя, затем на дорожку или домик.
+// Альтернативное управление:
+// нажать на жителя, затем на дорожку или домик.
 document.addEventListener("click", event => {
   if (suppressClick) return;
 
@@ -828,18 +891,24 @@ $("#names").onclick = () => {
 };
 
 $("#restart").onclick = () => {
+  cancelDrag();
   $("#win").close();
-  $("#confetti").replaceChildren();
+  clearConfetti();
   level = 0;
   loadLevel();
 };
 
 $("#next").onclick = () => {
   $("#win").close();
-  $("#confetti").replaceChildren();
+  clearConfetti();
   level = level === 4 ? 0 : level + 1;
   loadLevel();
 };
+
+// Закрываем окно победы только кнопкой перехода.
+$("#win").addEventListener("cancel", event => {
+  event.preventDefault();
+});
 
 loadLevel();
 </script>
