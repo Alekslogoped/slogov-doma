@@ -18,10 +18,7 @@ html, body {
   color: #294650;
 }
 
-button {
-  font: inherit;
-  cursor: pointer;
-}
+button { font: inherit; cursor: pointer; }
 
 #viewport {
   width: 100%;
@@ -39,11 +36,8 @@ button {
   height: 900px;
   transform-origin: top left;
   overflow: hidden;
-  background:
-    #bde4a3
-    url("assets/background.png")
-    center / 100% 100%
-    no-repeat;
+  background: #bde4a3 url("assets/background.png")
+    center / 100% 100% no-repeat;
 }
 
 .top {
@@ -91,7 +85,6 @@ button {
   background: #ffffffdf;
 }
 
-/* Домики */
 #houses {
   position: absolute;
   top: 178px;
@@ -148,7 +141,6 @@ button {
   min-height: 0;
 }
 
-/* Картинки жителей */
 .card {
   width: 100%;
   height: 100%;
@@ -175,16 +167,16 @@ button {
   pointer-events: none;
 }
 
-.picture {
-  font-size: 67px;
-  line-height: 1.1;
-  pointer-events: none;
-}
-
 .visual img {
   width: 100%;
   height: 100%;
   object-fit: contain;
+  pointer-events: none;
+}
+
+.picture {
+  font-size: 67px;
+  line-height: 1.1;
   pointer-events: none;
 }
 
@@ -214,7 +206,6 @@ button {
   pointer-events: none;
 }
 
-/* Дорожка */
 #meadow {
   position: absolute;
   top: 645px;
@@ -235,10 +226,7 @@ button {
   outline-offset: 3px;
 }
 
-.meadow-slot {
-  width: 155px;
-  height: 132px;
-}
+.meadow-slot { width: 155px; height: 132px; }
 
 .meadow-slot .card {
   background: #ffffff80;
@@ -261,7 +249,6 @@ button {
   background: #ffffffdb;
 }
 
-/* Картинка во время перетаскивания */
 .ghost {
   position: fixed;
   z-index: 1000;
@@ -277,7 +264,6 @@ button {
 .ghost .picture { font-size: 65px; }
 .ghost .name { display: none; }
 
-/* Победа */
 #win {
   border: 0;
   border-radius: 28px;
@@ -315,9 +301,7 @@ button {
 }
 
 @keyframes fall {
-  to {
-    transform: translateY(110vh) rotate(720deg);
-  }
+  to { transform: translateY(110vh) rotate(720deg); }
 }
 </style>
 </head>
@@ -326,14 +310,12 @@ button {
 <div id="viewport">
   <div id="frame">
     <main id="game">
-
       <div class="top">
         <h1 class="title">Слоговые домики</h1>
-
         <div class="tools">
-          <span class="level" id="level"></span>
-          <button id="names">Подписи</button>
-          <button id="restart">Заново</button>
+          <span id="level" class="level"></span>
+          <button id="names" type="button">Подписи</button>
+          <button id="restart" type="button">Заново</button>
         </div>
       </div>
 
@@ -341,14 +323,11 @@ button {
 
       <section id="houses" aria-label="Четыре домика"></section>
 
-      <section
-        id="meadow"
+      <section id="meadow"
         data-target="meadow"
-        aria-label="Дорожка для лишних жителей">
-      </section>
+        aria-label="Дорожка для лишних жителей"></section>
 
       <p id="feedback" aria-live="polite"></p>
-
     </main>
   </div>
 </div>
@@ -357,16 +336,18 @@ button {
   <div style="font-size:65px">🎉🏡🎉</div>
   <h2 id="win-title"></h2>
   <p id="win-text"></p>
-  <button id="next"></button>
+  <button id="next" type="button"></button>
 </dialog>
 
 <div id="confetti"></div>
 
 <script>
+"use strict";
+
 const $ = selector => document.querySelector(selector);
 
-// Подключены ваши первые 12 картинок.
-const UPLOADED_PICTURES = 12;
+/* Все 24 картинки загружены. */
+const UPLOADED_PICTURES = 24;
 
 const groups = [
   [
@@ -419,7 +400,6 @@ const words = groups.map((group, g) =>
   })
 );
 
-// Предварительная загрузка картинок.
 const pictureCache = new Map();
 
 words.flat().forEach(word => {
@@ -430,10 +410,12 @@ words.flat().forEach(word => {
   }
 });
 
-// Окна: left, top, width, height — в процентах.
+/*
+  Окна: [слева %, сверху %, ширина %, высота %].
+*/
 const houseSettings = [
   {
-    image: "assets/houses/house-01.png",
+    img: "assets/houses/house-01.png",
     windows: [
       [16.5, 31.5, 29, 21],
       [54.5, 31.5, 29, 21],
@@ -442,7 +424,7 @@ const houseSettings = [
     ]
   },
   {
-    image: "assets/houses/house-02.png",
+    img: "assets/houses/house-02.png",
     windows: [
       [18.5, 30.5, 27, 21.5],
       [54, 30.5, 27, 21.5],
@@ -451,7 +433,7 @@ const houseSettings = [
     ]
   },
   {
-    image: "assets/houses/house-03.png",
+    img: "assets/houses/house-03.png",
     windows: [
       [19, 30, 26.5, 19.5],
       [54, 30, 26.5, 19.5],
@@ -460,7 +442,7 @@ const houseSettings = [
     ]
   },
   {
-    image: "assets/houses/house-04.png",
+    img: "assets/houses/house-04.png",
     windows: [
       [19, 31.5, 26.5, 21],
       [54, 31.5, 26.5, 21],
@@ -487,8 +469,8 @@ function fitGame() {
     window.innerHeight / 900
   );
 
-  $("#frame").style.width = 1600 * scale + "px";
-  $("#frame").style.height = 900 * scale + "px";
+  $("#frame").style.width = `${1600 * scale}px`;
+  $("#frame").style.height = `${900 * scale}px`;
   $("#game").style.transform = `scale(${scale})`;
 }
 
@@ -501,45 +483,38 @@ function feedback(text) {
 
 function sound(success) {
   try {
-    audioContext ??= new (
-      window.AudioContext || window.webkitAudioContext
-    )();
+    const AudioContextClass =
+      window.AudioContext || window.webkitAudioContext;
 
-    audioContext.resume();
+    if (!AudioContextClass) return;
+
+    audioContext ||= new AudioContextClass();
+    audioContext.resume().catch(() => {});
 
     const oscillator = audioContext.createOscillator();
     const gain = audioContext.createGain();
+    const now = audioContext.currentTime;
+
+    oscillator.frequency.value = success ? 700 : 230;
+    gain.gain.setValueAtTime(0.055, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
 
     oscillator.connect(gain);
     gain.connect(audioContext.destination);
-
-    oscillator.frequency.value = success ? 700 : 230;
-
-    gain.gain.setValueAtTime(
-      .055,
-      audioContext.currentTime
-    );
-
-    gain.gain.exponentialRampToValueAtTime(
-      .001,
-      audioContext.currentTime + .2
-    );
-
-    oscillator.start();
-    oscillator.stop(audioContext.currentTime + .2);
-  } catch {}
+    oscillator.start(now);
+    oscillator.stop(now + 0.2);
+  } catch (_) {}
 }
 
 function createCard(resident) {
-  const button = document.createElement("button");
-
-  button.type = "button";
-  button.className = "card";
-  button.dataset.id = resident.id;
-  button.setAttribute("aria-label", resident.name);
+  const card = document.createElement("button");
+  card.type = "button";
+  card.className = "card";
+  card.dataset.id = resident.id;
+  card.setAttribute("aria-label", resident.name);
 
   if (selected === resident.id) {
-    button.classList.add("selected");
+    card.classList.add("selected");
   }
 
   const visual = document.createElement("span");
@@ -551,105 +526,85 @@ function createCard(resident) {
 
   if (resident.number <= UPLOADED_PICTURES) {
     const image = document.createElement("img");
-
     image.alt = "";
     image.draggable = false;
-
-    image.onerror = () => {
-      visual.replaceChildren(picture);
-    };
-
+    image.onerror = () => visual.replaceChildren(picture);
     image.src = resident.img;
     visual.append(image);
   } else {
     visual.append(picture);
   }
 
-  button.append(visual);
-
   const name = document.createElement("span");
   name.className = "name";
   name.textContent = resident.name;
 
-  button.append(name);
-
-  return button;
+  card.append(visual, name);
+  return card;
 }
 
 function render() {
-  $("#houses").replaceChildren();
+  const houses = $("#houses");
+  houses.replaceChildren();
 
-  for (let houseNumber = 1; houseNumber <= 4; houseNumber++) {
-    const settings = houseSettings[houseNumber - 1];
+  houseSettings.forEach((settings, index) => {
+    const number = index + 1;
     const house = document.createElement("section");
-
     house.className = "house";
-    house.dataset.target = houseNumber;
-
+    house.dataset.target = String(number);
     house.setAttribute(
       "aria-label",
-      `Домик с количеством слогов: ${houseNumber}`
+      `Домик: количество слогов — ${number}`
     );
 
     const image = document.createElement("img");
-
     image.className = "house-image";
-    image.src = settings.image;
+    image.src = settings.img;
     image.alt = "";
     image.draggable = false;
-
-    house.append(image);
 
     const dots = document.createElement("div");
     dots.className = "dots";
 
-    for (let i = 0; i < houseNumber; i++) {
+    for (let i = 0; i < number; i++) {
       const dot = document.createElement("span");
       dot.className = "dot";
       dots.append(dot);
     }
 
-    house.append(dots);
+    house.append(image, dots);
 
     settings.windows.forEach((position, slotNumber) => {
       const slot = document.createElement("div");
       slot.className = "slot";
-
       slot.style.left = position[0] + "%";
       slot.style.top = position[1] + "%";
       slot.style.width = position[2] + "%";
       slot.style.height = position[3] + "%";
 
       const resident = residents.find(item =>
-        item.location === houseNumber &&
-        item.slot === slotNumber
+        item.location === number && item.slot === slotNumber
       );
 
-      if (resident) {
-        slot.append(createCard(resident));
-      }
-
+      if (resident) slot.append(createCard(resident));
       house.append(slot);
     });
 
-    $("#houses").append(house);
-  }
+    houses.append(house);
+  });
 
   const meadow = $("#meadow");
   meadow.replaceChildren();
 
-  const outside = residents.filter(
-    item => item.location === "meadow"
+  const outside = residents.filter(item =>
+    item.location === "meadow"
   );
 
   for (let i = 0; i < 4; i++) {
     const slot = document.createElement("div");
     slot.className = "meadow-slot";
 
-    if (outside[i]) {
-      slot.append(createCard(outside[i]));
-    }
-
+    if (outside[i]) slot.append(createCard(outside[i]));
     meadow.append(slot);
   }
 
@@ -665,7 +620,6 @@ function loadLevel() {
   selected = null;
   residents = [];
 
-  // Три правильных жителя в каждом доме.
   for (let g = 0; g < 4; g++) {
     for (let i = 0; i < 3; i++) {
       const word = words[g][(level + i) % 6];
@@ -679,7 +633,6 @@ function loadLevel() {
     }
   }
 
-  // По одному лишнему жителю.
   for (let destination = 0; destination < 4; destination++) {
     const sourceGroup = (destination + shifts[level]) % 4;
     const word = words[sourceGroup][(level + 3) % 6];
@@ -692,12 +645,7 @@ function loadLevel() {
     });
   }
 
-  // Перемешиваем окошки.
-  for (let number = 1; number <= 4; number++) {
-    const houseResidents = residents.filter(
-      item => item.location === number
-    );
-
+  for (let house = 1; house <= 4; house++) {
     const slots = [0, 1, 2, 3];
 
     for (let i = slots.length - 1; i > 0; i--) {
@@ -705,9 +653,9 @@ function loadLevel() {
       [slots[i], slots[j]] = [slots[j], slots[i]];
     }
 
-    houseResidents.forEach((item, i) => {
-      item.slot = slots[i];
-    });
+    residents
+      .filter(item => item.location === house)
+      .forEach((item, i) => item.slot = slots[i]);
   }
 
   feedback("Перетаскивай жителей мышкой или пальцем.");
@@ -736,8 +684,8 @@ function move(id, target) {
     selected = null;
     sound(true);
 
-    const found = residents.filter(
-      item => item.location === "meadow"
+    const found = residents.filter(item =>
+      item.location === "meadow"
     ).length;
 
     feedback(`Верно! Найдено: ${found} из 4.`);
@@ -762,8 +710,8 @@ function move(id, target) {
       .filter(item => item.location === target)
       .map(item => item.slot);
 
-    const freeSlot = [0, 1, 2, 3].find(
-      slot => !occupied.includes(slot)
+    const freeSlot = [0, 1, 2, 3].find(slot =>
+      !occupied.includes(slot)
     );
 
     if (freeSlot === undefined) return;
@@ -778,9 +726,7 @@ function move(id, target) {
 
   render();
 
-  if (residents.every(
-    item => item.location === item.syllables
-  )) {
+  if (residents.every(item => item.location === item.syllables)) {
     celebrate();
   }
 }
@@ -808,32 +754,24 @@ function celebrate() {
   $("#win").showModal();
   clearConfetti();
 
-  const host = $("#confetti");
-  const palette = [
-    "#ffad50",
-    "#7bc8ed",
-    "#c596ed",
-    "#ffdb55"
-  ];
+  const colors = ["#ffad50", "#7bc8ed", "#c596ed", "#ffdb55"];
 
   for (let i = 0; i < 75; i++) {
-    const piece = document.createElement("i");
-
+    const piece = document.createElement("span");
     piece.className = "confetti";
     piece.style.left = Math.random() * 100 + "%";
-    piece.style.background = palette[i % palette.length];
-    piece.style.animationDelay = Math.random() * .5 + "s";
-
-    host.append(piece);
+    piece.style.background = colors[i % colors.length];
+    piece.style.animationDelay = Math.random() * 0.5 + "s";
+    $("#confetti").append(piece);
   }
 
   confettiTimer = setTimeout(clearConfetti, 3200);
 }
 
 function clearHover() {
-  document.querySelectorAll(".over").forEach(element => {
-    element.classList.remove("over");
-  });
+  document.querySelectorAll(".over").forEach(element =>
+    element.classList.remove("over")
+  );
 }
 
 function targetAt(x, y) {
@@ -842,15 +780,21 @@ function targetAt(x, y) {
 }
 
 function cancelDrag() {
-  drag?.ghost?.remove();
+  if (drag?.ghost) drag.ghost.remove();
   drag = null;
   clearHover();
 }
 
-document.addEventListener("pointerdown", event => {
-  const card = event.target.closest(".card");
+function readTarget(element) {
+  return element.dataset.target === "meadow"
+    ? "meadow"
+    : Number(element.dataset.target);
+}
 
-  if (!card || event.button !== 0 || drag) return;
+document.addEventListener("pointerdown", event => {
+  const card = event.target.closest(".card[data-id]");
+
+  if (!card || event.button !== 0 || drag || $("#win").open) return;
 
   drag = {
     id: card.dataset.id,
@@ -858,46 +802,40 @@ document.addEventListener("pointerdown", event => {
     x: event.clientX,
     y: event.clientY,
     moved: false,
-    ghost: null
+    ghost: null,
+    card
   };
 
   card.setPointerCapture(event.pointerId);
 });
 
 document.addEventListener("pointermove", event => {
-  if (!drag || event.pointerId !== drag.pointerId) return;
+  if (!drag || drag.pointerId !== event.pointerId) return;
 
-  const distance = Math.hypot(
-    event.clientX - drag.x,
-    event.clientY - drag.y
-  );
+  if (!drag.moved) {
+    const distance = Math.hypot(
+      event.clientX - drag.x,
+      event.clientY - drag.y
+    );
 
-  if (!drag.moved && distance > 8) {
+    if (distance < 8) return;
+
     drag.moved = true;
-
-    drag.ghost = document.querySelector(
-      `[data-id="${drag.id}"]`
-    ).cloneNode(true);
-
+    drag.ghost = drag.card.cloneNode(true);
     drag.ghost.classList.add("ghost");
     drag.ghost.removeAttribute("data-id");
-
     document.body.append(drag.ghost);
   }
 
-  if (drag.moved) {
-    drag.ghost.style.left = event.clientX + "px";
-    drag.ghost.style.top = event.clientY + "px";
+  drag.ghost.style.left = event.clientX + "px";
+  drag.ghost.style.top = event.clientY + "px";
 
-    clearHover();
-
-    targetAt(event.clientX, event.clientY)
-      ?.classList.add("over");
-  }
+  clearHover();
+  targetAt(event.clientX, event.clientY)?.classList.add("over");
 });
 
 document.addEventListener("pointerup", event => {
-  if (!drag || event.pointerId !== drag.pointerId) return;
+  if (!drag || drag.pointerId !== event.pointerId) return;
 
   const current = drag;
   drag = null;
@@ -906,69 +844,51 @@ document.addEventListener("pointerup", event => {
   if (current.moved) {
     current.ghost.remove();
 
-    const element = targetAt(
-      event.clientX,
-      event.clientY
-    );
+    suppressClick = true;
+    setTimeout(() => suppressClick = false, 0);
 
-    if (element) {
-      move(
-        current.id,
-        element.dataset.target === "meadow"
-          ? "meadow"
-          : Number(element.dataset.target)
-      );
-    }
+    const target = targetAt(event.clientX, event.clientY);
+    if (target) move(current.id, readTarget(target));
 
     event.preventDefault();
-    suppressClick = true;
-
-    setTimeout(() => {
-      suppressClick = false;
-    }, 0);
   }
 });
 
 document.addEventListener("pointercancel", event => {
-  if (drag && event.pointerId === drag.pointerId) {
-    cancelDrag();
-  }
+  if (drag?.pointerId === event.pointerId) cancelDrag();
 });
 
 window.addEventListener("blur", cancelDrag);
 
-// Управление нажатием:
-// выбрать жителя, затем нажать на дорожку или домик.
 document.addEventListener("click", event => {
-  if (suppressClick) return;
+  if (suppressClick || $("#win").open) return;
 
-  const card = event.target.closest(".card");
+  const card = event.target.closest(".card[data-id]");
 
   if (card) {
-    selected = card.dataset.id;
+    selected = selected === card.dataset.id
+      ? null
+      : card.dataset.id;
+
     render();
     return;
   }
 
-  const element = event.target.closest("[data-target]");
+  const target = event.target.closest("[data-target]");
 
-  if (element && selected) {
-    move(
-      selected,
-      element.dataset.target === "meadow"
-        ? "meadow"
-        : Number(element.dataset.target)
-    );
+  if (target && selected) {
+    move(selected, readTarget(target));
   }
 });
 
 $("#names").onclick = () => {
-  $("#game").classList.toggle("show-names");
+  const visible = $("#game").classList.toggle("show-names");
+  $("#names").setAttribute("aria-pressed", String(visible));
 };
 
 $("#restart").onclick = () => {
   cancelDrag();
-  $("#win").close();
+  if ($("#win").open) $("#win").close();
   clearConfetti();
   level = 0;
   loadLevel();
@@ -981,9 +901,9 @@ $("#next").onclick = () => {
   loadLevel();
 };
 
-$("#win").addEventListener("cancel", event => {
-  event.preventDefault();
-});
+$("#win").addEventListener("cancel", event =>
+  event.preventDefault()
+);
 
 loadLevel();
 </script>
