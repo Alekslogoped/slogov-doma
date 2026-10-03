@@ -76,8 +76,8 @@ button { font: inherit; cursor: pointer; }
 #instruction {
   position: absolute;
   top: 97px;
-  left: 240px;
-  right: 240px;
+  left: 140px;
+  right: 140px;
   text-align: center;
   padding: 12px;
   font-size: 27px;
@@ -264,25 +264,103 @@ button { font: inherit; cursor: pointer; }
 .ghost .picture { font-size: 65px; }
 .ghost .name { display: none; }
 
-#win {
+dialog {
   border: 0;
   border-radius: 28px;
-  padding: 35px;
-  text-align: center;
   color: #294650;
-  max-width: 90vw;
+  background: #fffdf5;
+  box-shadow: 0 18px 65px #173c4b40;
 }
 
-#win::backdrop { background: #21434e66; }
-#win h2 { font-size: 30px; }
+dialog::backdrop {
+  background: #21434e88;
+}
 
-#next {
+#rules {
+  width: min(760px, 92vw);
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: clamp(18px, 3vw, 32px);
+}
+
+#rules h2 {
+  margin: 0 0 14px;
+  text-align: center;
+  font-size: clamp(23px, 3vw, 31px);
+}
+
+#rules p {
+  margin: 12px 0;
+  font-size: clamp(16px, 2vw, 20px);
+  line-height: 1.45;
+}
+
+.rules-houses {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin: 18px 0;
+}
+
+.rules-house {
+  padding: 14px 6px;
+  border-radius: 18px;
+  background: #eef5df;
+  text-align: center;
+}
+
+.rules-house:nth-child(2) { background: #e5f3fc; }
+.rules-house:nth-child(3) { background: #fff0da; }
+.rules-house:nth-child(4) { background: #f2eafa; }
+
+.rules-house img {
+  display: block;
+  width: 100%;
+  height: clamp(65px, 12vw, 100px);
+  object-fit: contain;
+  margin-bottom: 8px;
+}
+
+.rules-dots {
+  min-height: 22px;
+  color: #536179;
+  letter-spacing: 3px;
+  font-size: 17px;
+}
+
+.rules-house strong {
+  display: block;
+  margin-top: 6px;
+  font-size: clamp(15px, 2vw, 20px);
+}
+
+.rules-task {
+  padding: 12px 16px;
+  border-radius: 18px;
+  background: #fff1c9;
+}
+
+.rules-actions { text-align: center; margin-top: 20px; }
+
+#rules-ok, #next {
   border: 0;
   padding: 15px 25px;
   border-radius: 17px;
   background: #9bd57b;
+  color: #25402d;
   font-size: 23px;
+  font-weight: bold;
 }
+
+#rules-ok:hover, #next:hover { background: #89c86a; }
+
+#win {
+  padding: 35px;
+  text-align: center;
+  max-width: 90vw;
+}
+
+#win h2 { font-size: 30px; }
 
 #confetti {
   position: fixed;
@@ -314,7 +392,10 @@ button { font: inherit; cursor: pointer; }
         <h1 class="title">Слоговые домики</h1>
         <div class="tools">
           <span id="level" class="level"></span>
-          <button id="names" type="button">Подписи</button>
+          <button id="rules-button" type="button">Правила</button>
+          <button id="names" type="button" aria-pressed="false">
+            Подписи
+          </button>
           <button id="restart" type="button">Заново</button>
         </div>
       </div>
@@ -332,7 +413,61 @@ button { font: inherit; cursor: pointer; }
   </div>
 </div>
 
-<dialog id="win">
+<dialog id="rules" aria-labelledby="rules-title">
+  <h2 id="rules-title">Кто в каком домике живёт?</h2>
+
+  <p>
+    В каждом домике живут жители, в названиях которых
+    определённое количество слогов.
+  </p>
+
+  <div class="rules-houses">
+    <div class="rules-house">
+      <img src="assets/houses/house-01.png" alt="Первый домик">
+      <div class="rules-dots" aria-hidden="true">●</div>
+      <strong>1 слог</strong>
+    </div>
+
+    <div class="rules-house">
+      <img src="assets/houses/house-02.png" alt="Второй домик">
+      <div class="rules-dots" aria-hidden="true">●●</div>
+      <strong>2 слога</strong>
+    </div>
+
+    <div class="rules-house">
+      <img src="assets/houses/house-03.png" alt="Третий домик">
+      <div class="rules-dots" aria-hidden="true">●●●</div>
+      <strong>3 слога</strong>
+    </div>
+
+    <div class="rules-house">
+      <img src="assets/houses/house-04.png" alt="Четвёртый домик">
+      <div class="rules-dots" aria-hidden="true">●●●●</div>
+      <strong>4 слога</strong>
+    </div>
+  </div>
+
+  <div class="rules-task">
+    <p><strong>Проверь, правильно ли заселились жители!</strong></p>
+    <p>
+      В каждом домике один житель ошибся:
+      в его названии другое количество слогов.
+      Найди его и перенеси на дорожку.
+    </p>
+    <p>
+      Когда найдёшь всех четырёх, помоги каждому
+      вернуться в подходящий домик!
+    </p>
+  </div>
+
+  <div class="rules-actions">
+    <button id="rules-ok" type="button" autofocus>
+      ОК, начинаем!
+    </button>
+  </div>
+</dialog>
+
+<dialog id="win" aria-labelledby="win-title">
   <div style="font-size:65px">🎉🏡🎉</div>
   <h2 id="win-title"></h2>
   <p id="win-text"></p>
@@ -345,8 +480,6 @@ button { font: inherit; cursor: pointer; }
 "use strict";
 
 const $ = selector => document.querySelector(selector);
-
-/* Все 24 картинки загружены. */
 const UPLOADED_PICTURES = 24;
 
 const groups = [
@@ -410,9 +543,7 @@ words.flat().forEach(word => {
   }
 });
 
-/*
-  Окна: [слева %, сверху %, ширина %, высота %].
-*/
+/* Окна: [слева %, сверху %, ширина %, высота %]. */
 const houseSettings = [
   {
     img: "assets/houses/house-01.png",
@@ -476,6 +607,10 @@ function fitGame() {
 
 window.addEventListener("resize", fitGame);
 fitGame();
+
+function modalOpen() {
+  return $("#win").open || $("#rules").open;
+}
 
 function feedback(text) {
   $("#feedback").textContent = text;
@@ -611,7 +746,7 @@ function render() {
   $("#level").textContent = `Уровень ${level + 1} / 5`;
 
   $("#instruction").textContent = phase === 1
-    ? "Найди лишних жителей и перенеси их на дорожку."
+    ? "Проверь жителей: посчитай слоги и найди лишнего в каждом домике."
     : "Рассели жителей с дорожки по нужным домикам.";
 }
 
@@ -658,18 +793,19 @@ function loadLevel() {
       .forEach((item, i) => item.slot = slots[i]);
   }
 
-  feedback("Перетаскивай жителей мышкой или пальцем.");
+  feedback("Перенеси на дорожку тех, кто ошибся домиком.");
   render();
 }
 
 function move(id, target) {
-  const resident = residents.find(item => item.id === id);
+  if (modalOpen()) return;
 
+  const resident = residents.find(item => item.id === id);
   if (!resident || resident.location === target) return;
 
   if (phase === 1) {
     if (target !== "meadow") {
-      feedback("Сначала найди всех лишних жителей.");
+      feedback("Сначала найди всех лишних жителей и перенеси их на дорожку.");
       sound(false);
       return;
     }
@@ -791,10 +927,15 @@ function readTarget(element) {
     : Number(element.dataset.target);
 }
 
+function openRules() {
+  cancelDrag();
+  if (!modalOpen()) $("#rules").showModal();
+}
+
 document.addEventListener("pointerdown", event => {
   const card = event.target.closest(".card[data-id]");
 
-  if (!card || event.button !== 0 || drag || $("#win").open) return;
+  if (!card || event.button !== 0 || drag || modalOpen()) return;
 
   drag = {
     id: card.dataset.id,
@@ -861,7 +1002,7 @@ document.addEventListener("pointercancel", event => {
 window.addEventListener("blur", cancelDrag);
 
 document.addEventListener("click", event => {
-  if (suppressClick || $("#win").open) return;
+  if (suppressClick || modalOpen()) return;
 
   const card = event.target.closest(".card[data-id]");
 
@@ -880,6 +1021,16 @@ document.addEventListener("click", event => {
     move(selected, readTarget(target));
   }
 });
+
+$("#rules-button").onclick = openRules;
+
+$("#rules-ok").onclick = () => {
+  $("#rules").close();
+};
+
+$("#rules").addEventListener("cancel", event =>
+  event.preventDefault()
+);
 
 $("#names").onclick = () => {
   const visible = $("#game").classList.toggle("show-names");
@@ -906,6 +1057,7 @@ $("#win").addEventListener("cancel", event =>
 );
 
 loadLevel();
+openRules();
 </script>
 </body>
 </html>
