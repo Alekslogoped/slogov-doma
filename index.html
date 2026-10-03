@@ -18,7 +18,10 @@ html, body {
   color: #294650;
 }
 
-button { font: inherit; cursor: pointer; }
+button {
+  font: inherit;
+  cursor: pointer;
+}
 
 #viewport {
   width: 100%;
@@ -36,7 +39,11 @@ button { font: inherit; cursor: pointer; }
   height: 900px;
   transform-origin: top left;
   overflow: hidden;
-  background: #bde4a3 url("assets/background.png") center / 100% 100% no-repeat;
+  background:
+    #bde4a3
+    url("assets/background.png")
+    center / 100% 100%
+    no-repeat;
 }
 
 .top {
@@ -84,6 +91,7 @@ button { font: inherit; cursor: pointer; }
   background: #ffffffdf;
 }
 
+/* Домики */
 #houses {
   position: absolute;
   top: 178px;
@@ -140,6 +148,7 @@ button { font: inherit; cursor: pointer; }
   min-height: 0;
 }
 
+/* Картинки жителей */
 .card {
   width: 100%;
   height: 100%;
@@ -205,6 +214,7 @@ button { font: inherit; cursor: pointer; }
   pointer-events: none;
 }
 
+/* Дорожка */
 #meadow {
   position: absolute;
   top: 645px;
@@ -251,6 +261,7 @@ button { font: inherit; cursor: pointer; }
   background: #ffffffdb;
 }
 
+/* Картинка во время перетаскивания */
 .ghost {
   position: fixed;
   z-index: 1000;
@@ -266,6 +277,7 @@ button { font: inherit; cursor: pointer; }
 .ghost .picture { font-size: 65px; }
 .ghost .name { display: none; }
 
+/* Победа */
 #win {
   border: 0;
   border-radius: 28px;
@@ -303,7 +315,9 @@ button { font: inherit; cursor: pointer; }
 }
 
 @keyframes fall {
-  to { transform: translateY(110vh) rotate(720deg); }
+  to {
+    transform: translateY(110vh) rotate(720deg);
+  }
 }
 </style>
 </head>
@@ -312,8 +326,10 @@ button { font: inherit; cursor: pointer; }
 <div id="viewport">
   <div id="frame">
     <main id="game">
+
       <div class="top">
         <h1 class="title">Слоговые домики</h1>
+
         <div class="tools">
           <span class="level" id="level"></span>
           <button id="names">Подписи</button>
@@ -325,11 +341,14 @@ button { font: inherit; cursor: pointer; }
 
       <section id="houses" aria-label="Четыре домика"></section>
 
-      <section id="meadow"
-               data-target="meadow"
-               aria-label="Дорожка для лишних жителей"></section>
+      <section
+        id="meadow"
+        data-target="meadow"
+        aria-label="Дорожка для лишних жителей">
+      </section>
 
       <p id="feedback" aria-live="polite"></p>
+
     </main>
   </div>
 </div>
@@ -346,9 +365,8 @@ button { font: inherit; cursor: pointer; }
 <script>
 const $ = selector => document.querySelector(selector);
 
-// Уже загружены картинки с номерами 1–6.
-// После загрузки остальных изменим значение на 24.
-const UPLOADED_PICTURES = 6;
+// Подключены ваши первые 12 картинок.
+const UPLOADED_PICTURES = 12;
 
 const groups = [
   [
@@ -401,7 +419,7 @@ const words = groups.map((group, g) =>
   })
 );
 
-// Предварительно загружаем подключённые картинки.
+// Предварительная загрузка картинок.
 const pictureCache = new Map();
 
 words.flat().forEach(word => {
@@ -496,9 +514,15 @@ function sound(success) {
     gain.connect(audioContext.destination);
 
     oscillator.frequency.value = success ? 700 : 230;
-    gain.gain.setValueAtTime(.055, audioContext.currentTime);
+
+    gain.gain.setValueAtTime(
+      .055,
+      audioContext.currentTime
+    );
+
     gain.gain.exponentialRampToValueAtTime(
-      .001, audioContext.currentTime + .2
+      .001,
+      audioContext.currentTime + .2
     );
 
     oscillator.start();
@@ -530,9 +554,12 @@ function createCard(resident) {
 
     image.alt = "";
     image.draggable = false;
-    image.onerror = () => visual.replaceChildren(picture);
-    image.src = resident.img;
 
+    image.onerror = () => {
+      visual.replaceChildren(picture);
+    };
+
+    image.src = resident.img;
     visual.append(image);
   } else {
     visual.append(picture);
@@ -543,6 +570,7 @@ function createCard(resident) {
   const name = document.createElement("span");
   name.className = "name";
   name.textContent = resident.name;
+
   button.append(name);
 
   return button;
@@ -557,16 +585,19 @@ function render() {
 
     house.className = "house";
     house.dataset.target = houseNumber;
+
     house.setAttribute(
       "aria-label",
       `Домик с количеством слогов: ${houseNumber}`
     );
 
     const image = document.createElement("img");
+
     image.className = "house-image";
     image.src = settings.image;
     image.alt = "";
     image.draggable = false;
+
     house.append(image);
 
     const dots = document.createElement("div");
@@ -594,7 +625,10 @@ function render() {
         item.slot === slotNumber
       );
 
-      if (resident) slot.append(createCard(resident));
+      if (resident) {
+        slot.append(createCard(resident));
+      }
+
       house.append(slot);
     });
 
@@ -612,7 +646,10 @@ function render() {
     const slot = document.createElement("div");
     slot.className = "meadow-slot";
 
-    if (outside[i]) slot.append(createCard(outside[i]));
+    if (outside[i]) {
+      slot.append(createCard(outside[i]));
+    }
+
     meadow.append(slot);
   }
 
@@ -628,6 +665,7 @@ function loadLevel() {
   selected = null;
   residents = [];
 
+  // Три правильных жителя в каждом доме.
   for (let g = 0; g < 4; g++) {
     for (let i = 0; i < 3; i++) {
       const word = words[g][(level + i) % 6];
@@ -641,6 +679,7 @@ function loadLevel() {
     }
   }
 
+  // По одному лишнему жителю.
   for (let destination = 0; destination < 4; destination++) {
     const sourceGroup = (destination + shifts[level]) % 4;
     const word = words[sourceGroup][(level + 3) % 6];
@@ -653,6 +692,7 @@ function loadLevel() {
     });
   }
 
+  // Перемешиваем окошки.
   for (let number = 1; number <= 4; number++) {
     const houseResidents = residents.filter(
       item => item.location === number
@@ -665,7 +705,9 @@ function loadLevel() {
       [slots[i], slots[j]] = [slots[j], slots[i]];
     }
 
-    houseResidents.forEach((item, i) => item.slot = slots[i]);
+    houseResidents.forEach((item, i) => {
+      item.slot = slots[i];
+    });
   }
 
   feedback("Перетаскивай жителей мышкой или пальцем.");
@@ -674,6 +716,7 @@ function loadLevel() {
 
 function move(id, target) {
   const resident = residents.find(item => item.id === id);
+
   if (!resident || resident.location === target) return;
 
   if (phase === 1) {
@@ -766,7 +809,12 @@ function celebrate() {
   clearConfetti();
 
   const host = $("#confetti");
-  const palette = ["#ffad50", "#7bc8ed", "#c596ed", "#ffdb55"];
+  const palette = [
+    "#ffad50",
+    "#7bc8ed",
+    "#c596ed",
+    "#ffdb55"
+  ];
 
   for (let i = 0; i < 75; i++) {
     const piece = document.createElement("i");
@@ -783,9 +831,9 @@ function celebrate() {
 }
 
 function clearHover() {
-  document.querySelectorAll(".over").forEach(
-    element => element.classList.remove("over")
-  );
+  document.querySelectorAll(".over").forEach(element => {
+    element.classList.remove("over");
+  });
 }
 
 function targetAt(x, y) {
@@ -833,6 +881,7 @@ document.addEventListener("pointermove", event => {
 
     drag.ghost.classList.add("ghost");
     drag.ghost.removeAttribute("data-id");
+
     document.body.append(drag.ghost);
   }
 
@@ -841,6 +890,7 @@ document.addEventListener("pointermove", event => {
     drag.ghost.style.top = event.clientY + "px";
 
     clearHover();
+
     targetAt(event.clientX, event.clientY)
       ?.classList.add("over");
   }
@@ -856,7 +906,10 @@ document.addEventListener("pointerup", event => {
   if (current.moved) {
     current.ghost.remove();
 
-    const element = targetAt(event.clientX, event.clientY);
+    const element = targetAt(
+      event.clientX,
+      event.clientY
+    );
 
     if (element) {
       move(
@@ -869,17 +922,23 @@ document.addEventListener("pointerup", event => {
 
     event.preventDefault();
     suppressClick = true;
-    setTimeout(() => suppressClick = false, 0);
+
+    setTimeout(() => {
+      suppressClick = false;
+    }, 0);
   }
 });
 
 document.addEventListener("pointercancel", event => {
-  if (drag && event.pointerId === drag.pointerId) cancelDrag();
+  if (drag && event.pointerId === drag.pointerId) {
+    cancelDrag();
+  }
 });
 
 window.addEventListener("blur", cancelDrag);
 
-// Можно нажать на жителя, затем на дорожку или домик.
+// Управление нажатием:
+// выбрать жителя, затем нажать на дорожку или домик.
 document.addEventListener("click", event => {
   if (suppressClick) return;
 
