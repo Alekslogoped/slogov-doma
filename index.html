@@ -226,7 +226,10 @@ button { font: inherit; cursor: pointer; }
   outline-offset: 3px;
 }
 
-.meadow-slot { width: 155px; height: 132px; }
+.meadow-slot {
+  width: 155px;
+  height: 132px;
+}
 
 .meadow-slot .card {
   background: #ffffff80;
@@ -264,103 +267,130 @@ button { font: inherit; cursor: pointer; }
 .ghost .picture { font-size: 65px; }
 .ghost .name { display: none; }
 
-dialog {
-  border: 0;
-  border-radius: 28px;
-  color: #294650;
+/* Правила находятся внутри игры и масштабируются вместе с ней. */
+#rules-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #21434e88;
+}
+
+#rules-overlay[hidden] { display: none; }
+
+.rules-panel {
+  width: 1040px;
+  padding: 28px 36px;
+  border: 4px solid #ffffff;
+  border-radius: 32px;
   background: #fffdf5;
   box-shadow: 0 18px 65px #173c4b40;
 }
 
-dialog::backdrop {
-  background: #21434e88;
-}
-
-#rules {
-  width: min(760px, 92vw);
-  max-height: 90vh;
-  overflow-y: auto;
-  padding: clamp(18px, 3vw, 32px);
-}
-
-#rules h2 {
-  margin: 0 0 14px;
+.rules-panel h2 {
+  margin: 0 0 12px;
   text-align: center;
-  font-size: clamp(23px, 3vw, 31px);
+  font-size: 36px;
 }
 
-#rules p {
-  margin: 12px 0;
-  font-size: clamp(16px, 2vw, 20px);
-  line-height: 1.45;
+.rules-intro {
+  margin: 0;
+  text-align: center;
+  font-size: 24px;
+  line-height: 1.35;
 }
 
 .rules-houses {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
+  gap: 16px;
   margin: 18px 0;
 }
 
 .rules-house {
-  padding: 14px 6px;
-  border-radius: 18px;
+  padding: 12px 8px;
+  border-radius: 20px;
   background: #eef5df;
   text-align: center;
 }
 
 .rules-house:nth-child(2) { background: #e5f3fc; }
-.rules-house:nth-child(3) { background: #fff0da; }
-.rules-house:nth-child(4) { background: #f2eafa; }
+.rules-house:nth-child(3) { background: #f2eafa; }
+.rules-house:nth-child(4) { background: #fff0da; }
 
 .rules-house img {
   display: block;
   width: 100%;
-  height: clamp(65px, 12vw, 100px);
+  height: 105px;
   object-fit: contain;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .rules-dots {
-  min-height: 22px;
   color: #536179;
-  letter-spacing: 3px;
-  font-size: 17px;
+  letter-spacing: 5px;
+  font-size: 22px;
+  line-height: 1.2;
 }
 
 .rules-house strong {
   display: block;
-  margin-top: 6px;
-  font-size: clamp(15px, 2vw, 20px);
+  margin-top: 5px;
+  font-size: 25px;
 }
 
 .rules-task {
-  padding: 12px 16px;
-  border-radius: 18px;
+  padding: 16px 22px;
+  border-radius: 20px;
   background: #fff1c9;
 }
 
-.rules-actions { text-align: center; margin-top: 20px; }
+.rules-task p {
+  margin: 0 0 10px;
+  font-size: 25px;
+  line-height: 1.35;
+}
+
+.rules-task p:last-child { margin-bottom: 0; }
+
+.rules-actions {
+  text-align: center;
+  margin-top: 18px;
+}
 
 #rules-ok, #next {
   border: 0;
-  padding: 15px 25px;
-  border-radius: 17px;
+  padding: 15px 28px;
+  border-radius: 18px;
   background: #9bd57b;
   color: #25402d;
-  font-size: 23px;
+  font-size: 25px;
   font-weight: bold;
 }
 
 #rules-ok:hover, #next:hover { background: #89c86a; }
 
-#win {
-  padding: 35px;
-  text-align: center;
-  max-width: 90vw;
+button:focus-visible {
+  outline: 4px solid #e59a24;
+  outline-offset: 3px;
 }
 
-#win h2 { font-size: 30px; }
+#win {
+  border: 0;
+  border-radius: 28px;
+  padding: 30px;
+  text-align: center;
+  color: #294650;
+  background: #fffdf5;
+  max-width: 90vw;
+  max-height: 90vh;
+  overflow: auto;
+}
+
+#win::backdrop { background: #21434e88; }
+#win h2 { font-size: 28px; }
 
 #confetti {
   position: fixed;
@@ -388,87 +418,97 @@ dialog::backdrop {
 <div id="viewport">
   <div id="frame">
     <main id="game">
-      <div class="top">
-        <h1 class="title">Слоговые домики</h1>
-        <div class="tools">
-          <span id="level" class="level"></span>
-          <button id="rules-button" type="button">Правила</button>
-          <button id="names" type="button" aria-pressed="false">
-            Подписи
-          </button>
-          <button id="restart" type="button">Заново</button>
+
+      <div id="play-area">
+        <div class="top">
+          <h1 class="title">Слоговые домики</h1>
+          <div class="tools">
+            <span id="level" class="level"></span>
+            <button id="rules-button" type="button">Правила</button>
+            <button id="names" type="button" aria-pressed="false">
+              Подписи
+            </button>
+            <button id="restart" type="button">Заново</button>
+          </div>
         </div>
+
+        <div id="instruction" aria-live="polite"></div>
+
+        <section id="houses" aria-label="Четыре домика"></section>
+
+        <section id="meadow"
+          data-target="meadow"
+          aria-label="Дорожка для лишних жителей"></section>
+
+        <p id="feedback" aria-live="polite"></p>
       </div>
 
-      <div id="instruction" aria-live="polite"></div>
+      <div id="rules-overlay" hidden>
+        <section class="rules-panel"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="rules-title">
 
-      <section id="houses" aria-label="Четыре домика"></section>
+          <h2 id="rules-title">Кто в каком домике живёт?</h2>
 
-      <section id="meadow"
-        data-target="meadow"
-        aria-label="Дорожка для лишних жителей"></section>
+          <p class="rules-intro">
+            В каждом домике живут жители, в названиях которых
+            определённое количество слогов.
+          </p>
 
-      <p id="feedback" aria-live="polite"></p>
+          <div class="rules-houses">
+            <div class="rules-house">
+              <img src="assets/houses/house-01.png" alt="Первый домик">
+              <div class="rules-dots" aria-hidden="true">●</div>
+              <strong>1 слог</strong>
+            </div>
+
+            <div class="rules-house">
+              <img src="assets/houses/house-02.png" alt="Второй домик">
+              <div class="rules-dots" aria-hidden="true">●●</div>
+              <strong>2 слога</strong>
+            </div>
+
+            <div class="rules-house">
+              <img src="assets/houses/house-03.png" alt="Третий домик">
+              <div class="rules-dots" aria-hidden="true">●●●</div>
+              <strong>3 слога</strong>
+            </div>
+
+            <div class="rules-house">
+              <img src="assets/houses/house-04.png" alt="Четвёртый домик">
+              <div class="rules-dots" aria-hidden="true">●●●●</div>
+              <strong>4 слога</strong>
+            </div>
+          </div>
+
+          <div class="rules-task">
+            <p>
+              <strong>Проверь, правильно ли заселились жители!</strong>
+            </p>
+            <p>
+              В каждом домике один житель ошибся:
+              в его названии другое количество слогов.
+              Найди его и перенеси на дорожку.
+            </p>
+            <p>
+              Когда найдёшь всех четырёх, помоги каждому
+              вернуться в подходящий домик!
+            </p>
+          </div>
+
+          <div class="rules-actions">
+            <button id="rules-ok" type="button">ОК, начинаем!</button>
+          </div>
+        </section>
+      </div>
+
     </main>
   </div>
 </div>
 
-<dialog id="rules" aria-labelledby="rules-title">
-  <h2 id="rules-title">Кто в каком домике живёт?</h2>
-
-  <p>
-    В каждом домике живут жители, в названиях которых
-    определённое количество слогов.
-  </p>
-
-  <div class="rules-houses">
-    <div class="rules-house">
-      <img src="assets/houses/house-01.png" alt="Первый домик">
-      <div class="rules-dots" aria-hidden="true">●</div>
-      <strong>1 слог</strong>
-    </div>
-
-    <div class="rules-house">
-      <img src="assets/houses/house-02.png" alt="Второй домик">
-      <div class="rules-dots" aria-hidden="true">●●</div>
-      <strong>2 слога</strong>
-    </div>
-
-    <div class="rules-house">
-      <img src="assets/houses/house-03.png" alt="Третий домик">
-      <div class="rules-dots" aria-hidden="true">●●●</div>
-      <strong>3 слога</strong>
-    </div>
-
-    <div class="rules-house">
-      <img src="assets/houses/house-04.png" alt="Четвёртый домик">
-      <div class="rules-dots" aria-hidden="true">●●●●</div>
-      <strong>4 слога</strong>
-    </div>
-  </div>
-
-  <div class="rules-task">
-    <p><strong>Проверь, правильно ли заселились жители!</strong></p>
-    <p>
-      В каждом домике один житель ошибся:
-      в его названии другое количество слогов.
-      Найди его и перенеси на дорожку.
-    </p>
-    <p>
-      Когда найдёшь всех четырёх, помоги каждому
-      вернуться в подходящий домик!
-    </p>
-  </div>
-
-  <div class="rules-actions">
-    <button id="rules-ok" type="button" autofocus>
-      ОК, начинаем!
-    </button>
-  </div>
-</dialog>
-
 <dialog id="win" aria-labelledby="win-title">
-  <div style="font-size:65px">🎉🏡🎉</div>
+  <div style="font-size:60px">🎉🏡🎉</div>
   <h2 id="win-title"></h2>
   <p id="win-text"></p>
   <button id="next" type="button"></button>
@@ -593,6 +633,7 @@ let drag = null;
 let suppressClick = false;
 let audioContext = null;
 let confettiTimer = null;
+let rulesReturnFocus = null;
 
 function fitGame() {
   const scale = Math.min(
@@ -608,8 +649,12 @@ function fitGame() {
 window.addEventListener("resize", fitGame);
 fitGame();
 
+function rulesOpen() {
+  return !$("#rules-overlay").hidden;
+}
+
 function modalOpen() {
-  return $("#win").open || $("#rules").open;
+  return $("#win").open || rulesOpen();
 }
 
 function feedback(text) {
@@ -928,9 +973,40 @@ function readTarget(element) {
 }
 
 function openRules() {
+  if (modalOpen()) return;
+
   cancelDrag();
-  if (!modalOpen()) $("#rules").showModal();
+  rulesReturnFocus = document.activeElement;
+  $("#play-area").inert = true;
+  $("#rules-overlay").hidden = false;
+  $("#rules-ok").focus({ preventScroll: true });
 }
+
+function closeRules() {
+  $("#rules-overlay").hidden = true;
+  $("#play-area").inert = false;
+
+  const focusTarget =
+    rulesReturnFocus && rulesReturnFocus !== document.body
+      ? rulesReturnFocus
+      : $("#rules-button");
+
+  focusTarget.focus({ preventScroll: true });
+}
+
+document.addEventListener("keydown", event => {
+  if (!rulesOpen()) return;
+
+  if (event.key === "Tab") {
+    event.preventDefault();
+    $("#rules-ok").focus({ preventScroll: true });
+  }
+
+  if (event.key === "Escape") {
+    event.preventDefault();
+    closeRules();
+  }
+});
 
 document.addEventListener("pointerdown", event => {
   const card = event.target.closest(".card[data-id]");
@@ -1023,14 +1099,7 @@ document.addEventListener("click", event => {
 });
 
 $("#rules-button").onclick = openRules;
-
-$("#rules-ok").onclick = () => {
-  $("#rules").close();
-};
-
-$("#rules").addEventListener("cancel", event =>
-  event.preventDefault()
-);
+$("#rules-ok").onclick = closeRules;
 
 $("#names").onclick = () => {
   const visible = $("#game").classList.toggle("show-names");
