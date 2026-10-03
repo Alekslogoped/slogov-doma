@@ -84,7 +84,6 @@ button { font: inherit; cursor: pointer; }
   background: #ffffffdf;
 }
 
-/* Размер и положение всех домиков */
 #houses {
   position: absolute;
   top: 178px;
@@ -112,7 +111,6 @@ button { font: inherit; cursor: pointer; }
   user-select: none;
 }
 
-/* Точки на крыше */
 .dots {
   position: absolute;
   top: 18%;
@@ -133,7 +131,6 @@ button { font: inherit; cursor: pointer; }
   box-shadow: 0 2px 3px #0002;
 }
 
-/* Прозрачные области внутри нарисованных окон */
 .slot {
   position: absolute;
   display: flex;
@@ -146,7 +143,7 @@ button { font: inherit; cursor: pointer; }
 .card {
   width: 100%;
   height: 100%;
-  padding: 3px;
+  padding: 2px;
   border: 3px solid transparent;
   border-radius: 12px;
   background: transparent;
@@ -159,22 +156,32 @@ button { font: inherit; cursor: pointer; }
   -webkit-user-select: none;
 }
 
+.visual {
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
 .picture {
   font-size: 67px;
   line-height: 1.1;
   pointer-events: none;
 }
 
-.card img {
+.visual img {
   width: 100%;
   height: 100%;
-  min-height: 0;
   object-fit: contain;
   pointer-events: none;
 }
 
 .name {
   display: none;
+  flex-shrink: 0;
   font-size: 16px;
   line-height: 1.1;
   padding-top: 2px;
@@ -183,7 +190,6 @@ button { font: inherit; cursor: pointer; }
 
 .show-names .name { display: block; }
 .show-names .picture { font-size: 54px; }
-.show-names .card img { height: calc(100% - 22px); }
 
 .selected {
   border-color: #ed9b19;
@@ -199,7 +205,6 @@ button { font: inherit; cursor: pointer; }
   pointer-events: none;
 }
 
-/* Жители на дорожке */
 #meadow {
   position: absolute;
   top: 645px;
@@ -260,7 +265,6 @@ button { font: inherit; cursor: pointer; }
 
 .ghost .picture { font-size: 65px; }
 .ghost .name { display: none; }
-.ghost img { height: 100%; }
 
 #win {
   border: 0;
@@ -310,7 +314,6 @@ button { font: inherit; cursor: pointer; }
     <main id="game">
       <div class="top">
         <h1 class="title">Слоговые домики</h1>
-
         <div class="tools">
           <span class="level" id="level"></span>
           <button id="names">Подписи</button>
@@ -343,10 +346,9 @@ button { font: inherit; cursor: pointer; }
 <script>
 const $ = selector => document.querySelector(selector);
 
-// Пока жители отображаются временными значками.
-// Когда загрузите pik-01.png ... pik-24.png
-// в assets/pictures, поменяем false на true.
-const USE_IMAGES = false;
+// Уже загружены картинки с номерами 1–6.
+// После загрузки остальных изменим значение на 24.
+const UPLOADED_PICTURES = 6;
 
 const groups = [
   [
@@ -390,6 +392,7 @@ const words = groups.map((group, g) =>
 
     return {
       id,
+      number,
       name: item[0],
       emoji: item[1],
       syllables: g + 1,
@@ -398,8 +401,18 @@ const words = groups.map((group, g) =>
   })
 );
 
-// Положение картинок внутри окон каждого домика.
-// Параметры: left, top, width, height — в процентах.
+// Предварительно загружаем подключённые картинки.
+const pictureCache = new Map();
+
+words.flat().forEach(word => {
+  if (word.number <= UPLOADED_PICTURES) {
+    const image = new Image();
+    image.src = word.img;
+    pictureCache.set(word.id, image);
+  }
+});
+
+// Окна: left, top, width, height — в процентах.
 const houseSettings = [
   {
     image: "assets/houses/house-01.png",
@@ -505,22 +518,27 @@ function createCard(resident) {
     button.classList.add("selected");
   }
 
+  const visual = document.createElement("span");
+  visual.className = "visual";
+
   const picture = document.createElement("span");
   picture.className = "picture";
   picture.textContent = resident.emoji;
 
-  if (USE_IMAGES) {
+  if (resident.number <= UPLOADED_PICTURES) {
     const image = document.createElement("img");
-    image.src = resident.img;
+
     image.alt = "";
     image.draggable = false;
+    image.onerror = () => visual.replaceChildren(picture);
+    image.src = resident.img;
 
-    image.onerror = () => image.replaceWith(picture);
-
-    button.append(image);
+    visual.append(image);
   } else {
-    button.append(picture);
+    visual.append(picture);
   }
+
+  button.append(visual);
 
   const name = document.createElement("span");
   name.className = "name";
@@ -610,7 +628,6 @@ function loadLevel() {
   selected = null;
   residents = [];
 
-  // Три правильных жителя в каждом доме.
   for (let g = 0; g < 4; g++) {
     for (let i = 0; i < 3; i++) {
       const word = words[g][(level + i) % 6];
@@ -624,8 +641,6 @@ function loadLevel() {
     }
   }
 
-  // Один лишний житель в каждом доме.
-  // После расселения каждый дом получит одного жителя.
   for (let destination = 0; destination < 4; destination++) {
     const sourceGroup = (destination + shifts[level]) % 4;
     const word = words[sourceGroup][(level + 3) % 6];
@@ -638,7 +653,6 @@ function loadLevel() {
     });
   }
 
-  // Перемешиваем расположение жителей в окошках.
   for (let number = 1; number <= 4; number++) {
     const houseResidents = residents.filter(
       item => item.location === number
@@ -788,10 +802,11 @@ function cancelDrag() {
 document.addEventListener("pointerdown", event => {
   const card = event.target.closest(".card");
 
-  if (!card || event.button !== 0) return;
+  if (!card || event.button !== 0 || drag) return;
 
   drag = {
     id: card.dataset.id,
+    pointerId: event.pointerId,
     x: event.clientX,
     y: event.clientY,
     moved: false,
@@ -802,7 +817,7 @@ document.addEventListener("pointerdown", event => {
 });
 
 document.addEventListener("pointermove", event => {
-  if (!drag) return;
+  if (!drag || event.pointerId !== drag.pointerId) return;
 
   const distance = Math.hypot(
     event.clientX - drag.x,
@@ -826,14 +841,13 @@ document.addEventListener("pointermove", event => {
     drag.ghost.style.top = event.clientY + "px";
 
     clearHover();
-
     targetAt(event.clientX, event.clientY)
       ?.classList.add("over");
   }
 });
 
 document.addEventListener("pointerup", event => {
-  if (!drag) return;
+  if (!drag || event.pointerId !== drag.pointerId) return;
 
   const current = drag;
   drag = null;
@@ -845,11 +859,12 @@ document.addEventListener("pointerup", event => {
     const element = targetAt(event.clientX, event.clientY);
 
     if (element) {
-      const target = element.dataset.target === "meadow"
-        ? "meadow"
-        : Number(element.dataset.target);
-
-      move(current.id, target);
+      move(
+        current.id,
+        element.dataset.target === "meadow"
+          ? "meadow"
+          : Number(element.dataset.target)
+      );
     }
 
     event.preventDefault();
@@ -858,11 +873,13 @@ document.addEventListener("pointerup", event => {
   }
 });
 
-document.addEventListener("pointercancel", cancelDrag);
+document.addEventListener("pointercancel", event => {
+  if (drag && event.pointerId === drag.pointerId) cancelDrag();
+});
+
 window.addEventListener("blur", cancelDrag);
 
-// Альтернативное управление:
-// нажать на жителя, затем на дорожку или домик.
+// Можно нажать на жителя, затем на дорожку или домик.
 document.addEventListener("click", event => {
   if (suppressClick) return;
 
@@ -905,7 +922,6 @@ $("#next").onclick = () => {
   loadLevel();
 };
 
-// Закрываем окно победы только кнопкой перехода.
 $("#win").addEventListener("cancel", event => {
   event.preventDefault();
 });
